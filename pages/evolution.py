@@ -6,7 +6,9 @@ import timeit
 import plotly.graph_objects as go
 import os
 from plotly.subplots import make_subplots
-st.title('Workout log')
+import datetime
+st.set_page_config(layout='wide')
+st.header(':red[Evolution]')
 # Display graphical tools
 st.sidebar.markdown('### Graphical and display options')
 st.sidebar.markdown('**Text size**')
@@ -30,6 +32,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     workout_df['Day'] = workout_df['Day'].dt.date
     # List the exercises
     exercises_list = sorted(workout_df['Exercise'].unique())
+    st.subheader(':rainbow[Weight evolution]', divider='rainbow')
     # Display a widget to select an exercise
     selected_exercise = st.selectbox(label='Select an exercise:', options=exercises_list)
     # Create a Figure
@@ -44,6 +47,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     # Display Figure
     st.plotly_chart(fig_weight)
     st.divider()
+    st.subheader(':rainbow[Volume distribution per week and session]', divider='rainbow')
     # List all muscles
     muscles = volume_df['Muscle'].unique()
     # Create a 2x1 Figuere
