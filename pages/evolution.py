@@ -45,22 +45,29 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     st.plotly_chart(fig_weight)
     st.divider()
     # List all muscles
+    muscles = volume_df['Muscle'].unique()
     # Create a 2x1 Figuere
+    fig_volume = make_subplots(rows=2, cols=1, subplot_titles=['Session', 'Week'])
     # Create 3 columns
+    col1, col2, col3 = st.columns(3)
     # Display a widget to select a muscle to filter
+    muscle_selected = col1.selectbox(label='Select a muscle', options=muscles)
     # Display widgets to filter by date
+    date_min = col2.date_input(label='Select a minimum date:', value=datetime.date(2023, 6, 1))
+    date_max = col3.date_input(label='Select a maximum date:')
     # Filter by muscle
+    volume_df_muscle = volume_df.loc[volume_df['Muscle']==muscle_selected]
     # Filter by date
+    volume_df_muscle_date = volume_df_muscle.loc[(volume_df_muscle['Day']>=pd.to_datetime(date_min, format='%Y-%m-%d').date()) & (volume_df_muscle['Day']<=pd.to_datetime(date_max, format="%Y-%m-%d").date())]
     # Add traces
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Total Sets'], name=muscle_selected),row=1, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Total Sets']), row=2, col=1)
     # Update x-y axes
+    fig_volume.update_xaxes(tickfont_size=title_text_size, title_font=dict(size=title_text_size), type='category', categoryorder='category ascending', row=1, col=1)
+    fig_volume.update_xaxes(title='Week of year', tickfont_size=title_text_size, title_font=dict(size=title_text_size), row=2, col=1)
     fig_volume.update_yaxes(title='Sets', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
     # Update Figure layout
+    fig_volume.update_layout(title='Sets per session per muscle', width=1000, height=700, showlegend=False)
     # Display Figure
     st.plotly_chart(fig_volume)
     st.divider()
-    fig_volume_week = go.Figure()
-    fig_volume_week.add_trace(go.Bar(x=volume_df.groupby('Week').sum().index, y=volume_df.groupby('Week').sum()['Total Sets']))
-    fig_volume_week.update_xaxes(title='Week of year', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
-    fig_volume_week.update_yaxes(title='Total Sets', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
-    fig_volume_week.update_layout(title='Total Sets per week', width=1000, height=600)
-    st.plotly_chart(fig_volume_week)
