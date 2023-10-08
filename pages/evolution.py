@@ -75,3 +75,18 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     # Display Figure
     st.plotly_chart(fig_volume)
     st.divider()
+    st.subheader(body=':rainbow[Volume per week]', divider='rainbow')
+    # Get the list of weeks
+    weeks = volume_df['Week'].unique()
+    # Display a widget to select a week
+    week_selected = st.selectbox(label='Select the week:', options=weeks, index=len(weeks)-1)
+    # Filter data by selected week, group it by Muscle and sum Total sets
+    volume_df_week_grouped = volume_df.loc[volume_df['Week']==week_selected].groupby('Muscle').sum()
+    # Create a Figure
+    fig_pie_week_volume = go.Figure()
+    # Add trace
+    fig_pie_week_volume.add_trace(go.Pie(labels=volume_df_week_grouped.index, values=volume_df_week_grouped['Total Sets'], textinfo='label+value'))
+    # Update Figure layout
+    fig_pie_week_volume.update_layout(width=400, height=400)
+    # Display Figure
+    st.plotly_chart(fig_pie_week_volume)
