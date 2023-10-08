@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import os
 from plotly.subplots import make_subplots
 import datetime
-st.set_page_config(layout='wide')
+
 st.header(':red[Evolution]')
 # Display graphical tools
 st.sidebar.markdown('### Graphical and display options')
@@ -43,7 +43,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     fig_weight.update_xaxes(title='Date', tickfont_size=title_text_size, title_font=dict(size=title_text_size), type='category')
     fig_weight.update_yaxes(title='Weight (kg)', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
     # Update Figure layout
-    fig_weight.update_layout(title='Weight lifted evolution for ' + selected_exercise, width=1000, height=700)
+    fig_weight.update_layout(title='Weight lifted evolution for ' + selected_exercise, width=700, height=700)
     # Display Figure
     st.plotly_chart(fig_weight)
     st.divider()
@@ -71,7 +71,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     fig_volume.update_xaxes(title='Week of year', tickfont_size=title_text_size, title_font=dict(size=title_text_size), row=2, col=1)
     fig_volume.update_yaxes(title='Sets', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
     # Update Figure layout
-    fig_volume.update_layout(title='Sets per session per muscle', width=1000, height=700, showlegend=False)
+    fig_volume.update_layout(title='Sets per session per muscle', width=700, height=700, showlegend=False)
     # Display Figure
     st.plotly_chart(fig_volume)
     st.divider()
