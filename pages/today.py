@@ -67,6 +67,17 @@ with tab1:
                 notes = col3.text_input(label='Notes', key=selected_exercise +'_notes_' + str(i))
                 # Append note
                 notes_list.append(notes)
+            st.divider()
+            intensity_methods_check = st.toggle(label='Intensity methods')
+            if intensity_methods_check:
+                col1, col2, col3 = st.columns(3)
+                drop_sets = col1.number_input(label='Drop Sets', min_value=0, max_value=50, key=selected_exercise + '_drop_sets_' + str(i))
+                myo_reps = col2.number_input(label='Myo reps (sets)', min_value=0, max_value=50, key=selected_exercise + '_myo_sets_' + str(i))
+                iso_hold = col3.number_input(label='Isometric hold (s)', min_value=0, max_value=200, key=selected_exercise + '_iso_hold_' + str(i))
+            else:
+                drop_sets = 0
+                myo_reps = 0
+                iso_hold = 0
         # Display a button to save the introduced data
         apply_button = st.button(label="Add exercise to today's workout")
         st.divider()
@@ -79,6 +90,9 @@ with tab1:
             exercise_df['Weight per set (kg)'] = exercise_df['Reps'] * exercise_df['Weight (kg)']
             exercise_df['Notes'] = notes_list
             exercise_df['Day'] = date
+            exercise_df['Drop Sets'] = np.append(np.zeros(sets-1), drop_sets)
+            exercise_df['Myo reps'] = np.append(np.zeros(sets-1), myo_reps)
+            exercise_df['Isometric hold (s)'] = np.append(np.zeros(sets-1), iso_hold)
             # Show the detailed workout
             st.dataframe(exercise_df, width=2000)
             # Group by Exercise and sum sets and reps
