@@ -82,6 +82,8 @@ with tab1:
         apply_button = st.button(label="Add exercise to today's workout")
         st.divider()
         if apply_button:
+            # Set Excercise column as index
+            muscles_targeted.set_index('Exercise', inplace=True)
             # Add columns
             exercise_df['Exercise'] = exercises_list
             exercise_df['Sets'] = sets_list
@@ -93,65 +95,31 @@ with tab1:
             exercise_df['Drop Sets'] = np.append(np.zeros(sets-1), drop_sets)
             exercise_df['Myo reps'] = np.append(np.zeros(sets-1), myo_reps)
             exercise_df['Isometric hold (s)'] = np.append(np.zeros(sets-1), iso_hold)
+            exercise_df['Primary'] = muscles_targeted.loc[selected_exercise, 'Primary']
+            exercise_df['Secondary'] = muscles_targeted.loc[selected_exercise, 'Secondary']
             # Show the detailed workout
             st.dataframe(exercise_df, width=2000)
             # Group by Exercise and sum sets and reps
             exercise_grouped = exercise_df.groupby('Exercise').sum(numeric_only=True)
-            # Create a DataFrame to store volume per muscle
-            muscles_df = pd.DataFrame()
-            muscles_df['Muscle'] = muscles_targeted['Primary'].unique().tolist()
-            # Set Exercise column as index
-            muscles_df.set_index('Muscle', inplace=True)
-            # Initialize Total Sets and Total Reps columns
-            muscles_df['Total Sets'] = 0
-            muscles_df['Total Reps'] = 0
-            muscles_df['Total weight (kg)'] = 0
-            # Set Excercise column as index
-            muscles_targeted.set_index('Exercise', inplace=True)
-            # Iterate over performed exercise
-            for ex in exercise_grouped.index:
-                # Select primary worked muscle
-                primary = muscles_targeted.loc[ex, 'Primary']
-                # Select secondary worked muscle
-                secondary = muscles_targeted.loc[ex, 'Secondary']
-                # Add sets and reps to primary muscle
-                muscles_df.loc[primary, 'Total Sets'] = muscles_df.loc[primary, 'Total Sets'] + exercise_grouped.loc[ex, 'Sets']
-                muscles_df.loc[primary, 'Total Reps'] = muscles_df.loc[primary, 'Total Reps'] + exercise_grouped.loc[ex, 'Reps']
-                muscles_df.loc[primary, 'Total weight (kg)'] = muscles_df.loc[primary, 'Total weight (kg)'] + exercise_grouped.loc[ex, 'Weight per set (kg)']
-                if not np.isnan(secondary):
-                    # Add sets and reps to secondary muscle
-                    muscles_df.loc[secondary, 'Total Sets'] = muscles_df.loc[secondary, 'Total Sets'] + exercise_grouped.loc[ex, 'Sets'] * secondary_factor
-                    muscles_df.loc[secondary, 'Total Reps'] = muscles_df.loc[secondary, 'Total Reps'] + exercise_grouped.loc[ex, 'Reps'] * secondary_factor
-                    muscles_df.loc[secondary, 'Total weight (kg)'] = muscles_df.loc[secondary, 'Total weight (kg)'] + exercise_grouped.loc[ex, 'Weight per set (kg)'] * secondary_factor
-            # Subset only worked muscles
-            muscles_df = muscles_df.loc[muscles_df['Total Sets']>0]
-            # Add day
-            muscles_df['Day'] = date
             # Set Exercise column as index
             exercise_df.set_index('Exercise', inplace=True)
-            st.dataframe(muscles_df, width=2000)
+            st.dataframe(exercise_df, width=2000)
             st.divider()
             # Update databases, and create them if necessary
             if os.path.exists(workout_database):
                 exercise_df.to_csv(workout_database, mode='a', header=False)
             else:
                 exercise_df.to_csv(workout_database)
-            if os.path.exists(volume_database):
-                muscles_df.to_csv(volume_database, mode='a', header=False)
-            else:
-                muscles_df.to_csv(volume_database)
             st.success('Exercise succesfully added!')
             st.divider()
         if os.path.exists(workout_database) & os.path.exists(volume_database):
             # Load databases
             workout_df = pd.read_csv(workout_database, parse_dates=['Day'])
-            volume_df = pd.read_csv(volume_database, parse_dates=['Day'])
             # Get today date
             today = pd.Timestamp.today().date()
             # Select today workout
             workout_df = workout_df.loc[workout_df['Day']==pd.to_datetime(today)]
             # Select today volume
-            volume_df = volume_df.loc[volume_df['Day']==pd.to_datetime(today)]
             if not workout_df.empty:
                 # Display today's workout, set by set
                 st.markdown("This is your today's workout:")
@@ -165,7 +133,7 @@ with tab1:
                 st.divider()
                 # Display the total volume per muscle
                 st.markdown('**Volume per muscle**')
-                volume_df_grouped = volume_df.groupby('Muscle').sum(numeric_only=True)
+                volume_df_grouped = workout_df.groupby('Primary').sum(numeric_only=True)
                 st.dataframe(volume_df_grouped)
                 st.divider()
                 # Create and display a Pie Chart for exercises
@@ -177,7 +145,7 @@ with tab1:
                 st.divider()
                 # Create and display a Pie Chart for volume
                 fig_volume = go.Figure()
-                fig_volume.add_trace(go.Pie(labels=volume_df_grouped.index, values=volume_df_grouped['Total Sets'], textinfo='label+value'))
+                fig_volume.add_trace(go.Pie(labels=volume_df_grouped.index, values=volume_df_grouped['Sets'], textinfo='label+value'))
                 fig_volume.update_layout(title='Volume distribution for the session', width=1000, height=600, legend=dict(font_size=title_text_size),
                     hoverlabel=dict(font_size=title_text_size))
                 st.plotly_chart(fig_volume)
@@ -203,4 +171,3 @@ with tab1:
             st.markdown('**' + str(week_day) + ', ' + str(number_day) + ' ' + month + '**')
             st.dataframe(workout_df.loc[workout_df['Day']==date].drop(['Day', 'Sets', 'Weight per set (kg)'], axis=1), use_container_width=True)
             st.divider()
-        
