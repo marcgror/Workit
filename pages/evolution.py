@@ -18,14 +18,17 @@ figure_marker_size = st.sidebar.slider(label='Please, select the marker size:', 
 workout_database = 'workout_database.csv'
 volume_database = 'volume_database.csv'
 if os.path.exists(workout_database) & os.path.exists(volume_database):
-    # Read volume csv
-    volume_df = pd.read_csv(volume_database, parse_dates=['Day'])
+    # Read the workout csv
+    workout_df = pd.read_csv(workout_database, parse_dates=['Day'])
+    # Compute Secondary Sets
+    # Compute volume
+    volume_df = workout_df.groupby(['Primary', 'Day']).sum()
+    volume_df.reset_index(inplace=True)
+    # Compute Secondary volume
     # Get the week
     volume_df['Week'] = volume_df['Day'].dt.isocalendar().week
     # Get only the date
     volume_df['Day'] = volume_df['Day'].dt.date
-    # Read the workout csv
-    workout_df = pd.read_csv(workout_database, parse_dates=['Day'])
     # Get the week
     workout_df['Week'] = workout_df['Day'].dt.isocalendar().week
     # Get only the date
@@ -49,8 +52,8 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     st.divider()
     st.subheader(':rainbow[Volume distribution per week and session]', divider='rainbow')
     # List all muscles
-    muscles = volume_df['Muscle'].unique()
-    # Create a 2x1 Figuere
+    muscles = volume_df['Primary'].unique()
+    # Create a 2x1 Figure
     fig_volume = make_subplots(rows=2, cols=1, subplot_titles=['Session', 'Week'])
     # Create 3 columns
     col1, col2, col3 = st.columns(3)
@@ -60,7 +63,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     date_min = col2.date_input(label='Select a minimum date:', value=datetime.date(2023, 6, 1))
     date_max = col3.date_input(label='Select a maximum date:')
     # Filter by muscle
-    volume_df_muscle = volume_df.loc[volume_df['Muscle']==muscle_selected]
+    volume_df_muscle = volume_df.loc[volume_df['Primary']==muscle_selected]
     # Filter by date
     volume_df_muscle_date = volume_df_muscle.loc[(volume_df_muscle['Day']>=pd.to_datetime(date_min, format='%Y-%m-%d').date()) & (volume_df_muscle['Day']<=pd.to_datetime(date_max, format="%Y-%m-%d").date())]
     # Add traces
