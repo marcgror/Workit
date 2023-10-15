@@ -86,11 +86,32 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     st.divider()
     st.subheader(body=':rainbow[Volume per week]', divider='rainbow')
     # Get the list of weeks
-    weeks = volume_df['Week'].unique()
+    weeks = sorted(volume_df['Week'].unique())
     # Display a widget to select a week
     week_selected = st.selectbox(label='Select the week:', options=weeks, index=len(weeks)-1)
     # Filter data by selected week, group it by Muscle and sum Total sets
-    volume_df_week_grouped = volume_df.loc[volume_df['Week']==week_selected].groupby('Muscle').sum()
+    volume_df_week_grouped = volume_df.loc[volume_df['Week']==week_selected].groupby('Primary').sum()
+    # Create empty lists to store labels, parents and values for Sunburst figure
+    labels_list = []
+    parents_list = []
+    values_list = []
+    # Iterate over muscles
+    for muscle in volume_df_week_grouped.index:
+        # Compute total sets
+        total_sets = volume_df_week_grouped.loc[muscle, 'Sets'] + volume_df_week_grouped.loc[muscle, 'Drop Sets'] + volume_df_week_grouped.loc[muscle, 'Myo reps']
+        # Add labels, parents and values
+        labels_list = labels_list + [muscle, 'Sets', 'Drop Sets', 'Myo reps']
+        parents_list = parents_list + ['', muscle, muscle, muscle]
+        values_list = values_list + [total_sets, volume_df_week_grouped.loc[muscle, 'Sets'], volume_df_week_grouped.loc[muscle, 'Drop Sets'], volume_df_week_grouped.loc[muscle, 'Myo reps']]
+    # Create Figure
+    fig_volume_sunburst =go.Figure()
+    # Add trace
+    fig_volume_sunburst.add_trace(go.Sunburst(labels=labels_list, parents=parents_list, values=values_list, branchvalues="total", textinfo='label+value'))
+    # Update Figure layout
+    fig_volume_sunburst.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+    # Display Figure
+    st.plotly_chart(fig_volume_sunburst)
+    st.subheader(body=':rainbow[Frequency by week]', divider='rainbow')
     # Create a Figure
     fig_pie_week_volume = go.Figure()
     # Add trace
