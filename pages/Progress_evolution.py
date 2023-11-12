@@ -89,8 +89,20 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     st.plotly_chart(fig_volume)
     st.divider()
     st.subheader(body=':rainbow[Volume per week]', divider='rainbow')
+    # Add a widget to add or remove muscles groups
+    muscles_selected = st.multiselect(label='Add or remove muscles groups:', options=muscles, default=muscles)
     # Get the list of weeks
     weeks = sorted(volume_df['Week'].unique())
+    # Subset by muscles groups, group by week and sum
+    volume_per_week = volume_df.loc[volume_df['Primary'].isin(muscles_selected)].groupby('Week').sum()
+    fig_volume_per_week = go.Figure()
+    fig_volume_per_week.add_trace(go.Bar(x=volume_per_week.index, y=volume_per_week['Sets'], name='Normal sets', text=volume_per_week['Sets']))
+    fig_volume_per_week.add_trace(go.Bar(x=volume_per_week.index, y=volume_per_week['Drop Sets'], name='Drop Sets', text=volume_per_week['Drop Sets']))
+    fig_volume_per_week.add_trace(go.Bar(x=volume_per_week.index, y=volume_per_week['Myo reps'], name='Myo reps', text=volume_per_week['Myo reps']))
+    fig_volume_per_week.update_xaxes(title='Week', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
+    fig_volume_per_week.update_yaxes(title='Total Sets', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
+    fig_volume_per_week.update_layout(title='Total volume per week', width=700, barmode='stack')
+    st.plotly_chart(fig_volume_per_week)
     # Display a widget to select a week
     week_selected = st.selectbox(label='Select the week:', options=weeks, index=len(weeks)-1)
     # Filter data by selected week, group it by Muscle and sum Total sets
