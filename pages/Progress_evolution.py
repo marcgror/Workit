@@ -54,7 +54,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     # Display Figure
     st.plotly_chart(fig_weight)
     st.divider()
-    st.subheader(':rainbow[Volume distribution per week and session]', divider='rainbow')
+    st.subheader(':rainbow[Volume distribution per muscle]', divider='rainbow')
     # List all muscles
     muscles = volume_df['Primary'].unique()
     # Create a 2x1 Figure
@@ -84,7 +84,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     fig_volume.update_xaxes(title='Week of year', tickfont_size=title_text_size, title_font=dict(size=title_text_size), row=2, col=1)
     fig_volume.update_yaxes(title='Sets', tickfont_size=title_text_size, title_font=dict(size=title_text_size))
     # Update Figure layout
-    fig_volume.update_layout(title='Sets per session per muscle', width=700, height=700, barmode='stack', legend=dict(groupclick='toggleitem', tracegroupgap=250))
+    fig_volume.update_layout(title='Sets distribution by session and week', width=700, height=700, barmode='stack', legend=dict(groupclick='toggleitem', tracegroupgap=250))
     # Display Figure
     st.plotly_chart(fig_volume)
     st.divider()
@@ -124,7 +124,7 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     # Add trace
     fig_volume_sunburst.add_trace(go.Sunburst(labels=labels_list, parents=parents_list, values=values_list, branchvalues="total", textinfo='label+value'))
     # Update Figure layout
-    fig_volume_sunburst.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+    fig_volume_sunburst.update_layout(title='Week volume distributed by muscle', margin = dict(t=25, l=0, r=0, b=0))
     # Display Figure
     st.plotly_chart(fig_volume_sunburst)
     st.subheader(body=':rainbow[Frequency by week]', divider='rainbow')
