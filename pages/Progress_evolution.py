@@ -71,14 +71,20 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     # Filter by date
     volume_df_muscle_date = volume_df_muscle.loc[(volume_df_muscle['Day']>=pd.to_datetime(date_min, format='%Y-%m-%d').date()) & (volume_df_muscle['Day']<=pd.to_datetime(date_max, format="%Y-%m-%d").date())]
     # Add traces
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Sets'], name='Sets', legendgroup='day', legendgrouptitle=dict(text='Day')),row=1, col=1)
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Sets'], name='Sets', legendgroup='week', legendgrouptitle=dict(text='Week')), row=2, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Sets'], name='Sets', legendgroup='day', legendgrouptitle=dict(text='Day'),
+        text=volume_df_muscle_date.groupby('Day').sum()['Sets']),row=1, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Sets'], name='Sets', legendgroup='week', legendgrouptitle=dict(text='Week'),
+        text=volume_df_muscle_date.groupby('Week').sum()['Sets']), row=2, col=1)
     # Add Drop sets
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Drop Sets'], name='Drop Sets', legendgroup='day', legendgrouptitle=dict(text='Day')),row=1, col=1)
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Drop Sets'], name='Drop Sets', legendgroup='week', legendgrouptitle=dict(text='Week')), row=2, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Drop Sets'], name='Drop Sets', legendgroup='day', legendgrouptitle=dict(text='Day'),
+        text=volume_df_muscle_date.groupby('Day').sum()['Drop Sets']),row=1, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Drop Sets'], name='Drop Sets', legendgroup='week',
+        legendgrouptitle=dict(text='Week'), text=volume_df_muscle_date.groupby('Week').sum()['Drop Sets']), row=2, col=1)
     # Add Myo Reps
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Myo reps'], name='Myo Reps', legendgroup='day', legendgrouptitle=dict(text='Day')),row=1, col=1)
-    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Myo reps'], name='Myo Reps', legendgroup='week', legendgrouptitle=dict(text='Week')), row=2, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Day').sum().index, y=volume_df_muscle_date.groupby('Day').sum()['Myo reps'], name='Myo Reps', legendgroup='day', legendgrouptitle=dict(text='Day'),
+        text=volume_df_muscle_date.groupby('Day').sum()['Myo reps']),row=1, col=1)
+    fig_volume.add_trace(go.Bar(x=volume_df_muscle_date.groupby('Week').sum().index, y=volume_df_muscle_date.groupby('Week').sum()['Myo reps'], name='Myo Reps', legendgroup='week', legendgrouptitle=dict(text='Week'),
+        text=volume_df_muscle_date.groupby('Week').sum()['Myo reps']), row=2, col=1)
     # Update x-y axes
     fig_volume.update_xaxes(tickfont_size=title_text_size, title_font=dict(size=title_text_size), type='category', categoryorder='category ascending', row=1, col=1)
     fig_volume.update_xaxes(title='Week of year', tickfont_size=title_text_size, title_font=dict(size=title_text_size), row=2, col=1)
