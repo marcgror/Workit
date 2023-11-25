@@ -158,8 +158,10 @@ with tab1:
         workout_df['Day'] = workout_df['Day'].dt.date
         # Get last week workout date
         last_day = date.today() - timedelta(weeks=1)
+        # Display a widget to select a day and initialize it to one week before
+        date_selected = st.date_input(label='Select the date:', value=last_day)
         # Display last week workout
-        st.dataframe(workout_df.loc[workout_df['Day']==last_day], width=1000, height=1200)
+        st.dataframe(workout_df.loc[workout_df['Day']==date_selected].drop(['Sets', 'Day', 'Weight per set (kg)'], axis=1), width=1000, height=1200)
     with tab3:
         dates = workout_df['Day'].unique()
         dates_reversed = sorted(dates, reverse=True)
