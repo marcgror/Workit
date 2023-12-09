@@ -160,8 +160,31 @@ with tab1:
         last_day = date.today() - timedelta(weeks=1)
         # Display a widget to select a day and initialize it to one week before
         date_selected = st.date_input(label='Select the date:', value=last_day)
+        st.divider()
         # Display last week workout
-        st.dataframe(workout_df.loc[workout_df['Day']==date_selected].drop(['Sets', 'Day', 'Weight per set (kg)'], axis=1), width=1000, height=1200)
+        #st.dataframe(workout_df.loc[workout_df['Day']==date_selected].drop(['Sets', 'Day', 'Weight per set (kg)'], axis=1), width=1000, height=1200)
+        # Turn columns to int dtype
+        workout_df_today = workout_df.loc[workout_df['Day']==date_selected]
+        workout_df_today['Drop Sets'] = workout_df_today['Drop Sets'].astype(int)
+        workout_df_today['Myo reps'] = workout_df_today['Myo reps'].astype(int)
+        workout_df_today['Isometric hold (s)'] = workout_df_today['Isometric hold (s)'].astype(int)
+        # Iterate over exercises
+        for exercise in workout_df_today['Exercise'].unique():
+            # Create 3 columns
+            st.markdown('**' + exercise + '**')
+            col1, col2, col3 = st.columns(3)
+            # Iterate over rows for each exercise
+            for index, row in workout_df_today.loc[workout_df_today['Exercise']==exercise].iterrows():
+                # Display reps x weight
+                col1.markdown(str(row['Reps']) + 'x' + str(row['Weight (kg)']))
+                # Display Drop Sets, Myo reps and Isometric holds
+                col2.markdown(str(row['Drop Sets']) + ' Drop Sets, ' + str(row['Myo reps']) + ' Myo Reps, ' + str(row['Isometric hold (s)']) + ' s')
+                # Display Notes if exist
+                if type(row['Notes'])==str:
+                    col3.markdown('Note: ' + str(row['Notes']))
+                else:
+                    col3.markdown(' ')
+            st.divider()
     with tab3:
         dates = workout_df['Day'].unique()
         dates_reversed = sorted(dates, reverse=True)
