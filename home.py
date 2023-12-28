@@ -7,3 +7,4 @@ import plotly.graph_objects as go
 import os
 
 st.title('Workit')
+st.image('logo.jpeg')
