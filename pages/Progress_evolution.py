@@ -15,7 +15,8 @@ st.sidebar.markdown('**Text size**')
 title_text_size = st.sidebar.slider(label='Please, select the text size:', min_value=10, max_value=100, value=16)
 figure_marker_size = st.sidebar.slider(label='Please, select the marker size:', min_value=10, max_value=100, value=16)
 # Display a widget to introduce the secondary muscles factor
-secondary_factor = st.number_input(label='How much secondary muscles will be involved, from 0 to 1:', min_value=0.0, max_value=1.0, value=0.0)
+col1, col2 = st.columns(2)
+secondary_factor = col1.number_input(label='How much secondary muscles will be involved, from 0 to 1:', min_value=0.0, max_value=1.0, value=0.0)
 # Databases paths
 workout_database = 'workout_database.csv'
 volume_database = 'volume_database.csv'
@@ -24,6 +25,12 @@ if os.path.exists(workout_database) & os.path.exists(volume_database):
     workout_df = pd.read_csv(workout_database, parse_dates=['Day'])
     # Compute Secondary Sets
     workout_df['Secondary Sets'] = workout_df['Sets'] * secondary_factor
+    # Get year
+    workout_df['Year'] = workout_df['Day'].dt.year
+    # Display a widget to select the year to display data from
+    year_selected = col2.selectbox(label='Select year:', options=workout_df['Year'].unique(), index=1)
+    # Filter data by year
+    workout_df = workout_df.loc[workout_df['Year']==year_selected]
     # Compute volume
     volume_df = workout_df.groupby(['Primary', 'Day']).sum()
     volume_df.reset_index(inplace=True)
