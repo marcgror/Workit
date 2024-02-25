@@ -42,8 +42,9 @@ with tab1:
             date = col_date.date_input(label='Please, introduce the date for the exercise:')
             # Create 3 columns
             col1, col2, col3 = st.columns([1,1,3])
-            # Define last_weight
-            last_weight = 0.0
+            # Define last_weight based on last workout
+            workout_df = pd.read_csv(workout_database, parse_dates=['Day'])
+            last_weight = workout_df.loc[workout_df['Exercise']==selected_exercise].tail(1)['Weight (kg)'].values[0]
             last_reps = 8
             # Display options
             for i in np.linspace(1, sets, sets):
@@ -97,8 +98,6 @@ with tab1:
             exercise_df['Isometric hold (s)'] = np.append(np.zeros(sets-1), iso_hold)
             exercise_df['Primary'] = muscles_targeted.loc[selected_exercise, 'Primary']
             exercise_df['Secondary'] = muscles_targeted.loc[selected_exercise, 'Secondary']
-            # Show the detailed workout
-            st.dataframe(exercise_df, width=2000)
             # Group by Exercise and sum sets and reps
             exercise_grouped = exercise_df.groupby('Exercise').sum(numeric_only=True)
             # Set Exercise column as index
